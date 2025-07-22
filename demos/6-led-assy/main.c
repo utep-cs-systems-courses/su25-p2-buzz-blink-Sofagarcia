@@ -3,6 +3,9 @@
 #include "libTimer.h"
 #include "led.h"
 
+
+int blinkLimit = 5;
+
 int main(void) {
   P1DIR |= LEDS;
   P1OUT &= ~LED_GREEN;
@@ -16,10 +19,9 @@ int main(void) {
 
 
 // blink state machine
-static int blinkLimit = 5;   //  state var representing reciprocal of duty cycle 
 void blinkUpdate() // called every 1/250s to blink with duty cycle 1/blinkLimit
 {
-  static int blinkCount = 0; // state var representing blink state
+  int blinkCount = 0; // state var representing blink state
   blinkCount ++;
   if (blinkCount >= blinkLimit) {
     blinkCount = 0;
@@ -28,12 +30,14 @@ void blinkUpdate() // called every 1/250s to blink with duty cycle 1/blinkLimit
     greenControl(0);
 }
 
-void oncePerSecond() // repeatedly start bright and gradually lower duty cycle, one step/sec
+/*void oncePerSecond() // repeatedly start bright and gradually lower duty cycle, one step/sec
 {
   blinkLimit ++;  // reduce duty cycle
   if (blinkLimit >= 8)  // but don't let duty cycle go below 1/7.
     blinkLimit = 0;
-}
+    }*/
+
+extern void oncePerSecond(); //declare assy function
 
 void secondUpdate()  // called every 1/250 sec to call oncePerSecond once per second
 {

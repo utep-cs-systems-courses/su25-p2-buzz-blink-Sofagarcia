@@ -35,6 +35,9 @@ void main(void)
 } 
 
 static int buttonDown;
+static int blinkMode = 0; //0=slow 1=fats 2=alty
+static int blinkCounter = 0;
+static int ledOn = 0;
 
 void
 switch_interrupt_handler()
@@ -51,6 +54,12 @@ switch_interrupt_handler()
   } else {			/* button down */
     P1OUT |= LED_GREEN;
     buttonDown = 1;
+
+    //so each button press moves to the next blink pattern
+    blinkMode = (blinkMode + 1) % 3; //tis cycles through 0-1-2-0
+    blinkCounter = 0;                //resets counter when changing mode
+    ledOn = 0;
+    P1OUT &= ~LEDS;                  //clears leds when mode changes
   }
 }
 
@@ -65,16 +74,47 @@ __interrupt_vec(PORT1_VECTOR) Port_1(){
 }
 
 void
-__interrupt_vec(WDT_VECTOR) WDT()	/* 250 interrupts/sec */
-{
-  static int blink_count = 0;
-  switch (blink_count) { 
-  case 6: 
-    blink_count = 0;
-    P1OUT |= LED_RED;
+__interrupt_vec(WDT_VECTOR) WDT(){
+  blinkCounter++;
+
+  switch (blinkMode) {
+  case 0: // Slow blink (RED)
+    if (blinkCounter >= 75) { // ~3 blinks/sec
+      blinkCounter = 0;
+      ledOn ^= 1;
+      if (ledOn)
+        P1OUT |= LED_RED;
+      else
+        P1OUT &= ~LED_RED;
+    }
+    P1OUT &= ~LED_GREEN;
     break;
-  default:
-    blink_count ++;
-    if (!buttonDown) P1OUT &= ~LED_RED; /* don't blink off if button is down */
+
+  case 1: // Fast blink (RED)
+    if (blinkCounter >= 25) { // ~10 blinks/sec
+      blinkCounter = 0;
+      ledOn ^= 1;
+      if (ledOn)
+        P1OUT |= LED_RED;
+      else
+        P1OUT &= ~LED_RED;
+    }
+    P1OUT &= ~LED_GREEN;
+    break;
+
+  case 2: // Alternate RED ↔ GREEN
+    if (blinkCounter >= 50) {
+      blinkCounter = 0;
+      ledOn ^= 1;
+      if (ledOn) {
+        P1OUT |= LED_RED;
+        P1OUT &= ~LED_GREEN;
+      } else {
+        P1OUT |= LED_GREEN;
+        P1OUT &= ~LED_RED;
+      }
+    }
+    break;
   }
-} 
+}
+

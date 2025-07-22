@@ -1,0 +1,18 @@
+#define LED_GREEN;
+#defin
+
+void
+_interrupt_vec(WDT_VECTOR)WDT()
+{
+  advance_250th();
+}
+
+
+
+button_init()
+{
+  P1OUT = (0|6);
+  P1REN = (0|6);
+}
+switch{
+  
