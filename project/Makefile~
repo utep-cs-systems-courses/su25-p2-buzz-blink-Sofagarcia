@@ -1,0 +1,15 @@
+CC=msp430-elf-gcc
+CFLAGS=-mmcu=msp430g2553 -Os -g
+OBJS=main.o states.o leds.o sounds.o buttons.o button_handler.o
+
+toy.elf: $(OBJS)
+	$(CC) $(CFLAGS) -o toy.elf $(OBJS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+button_handler.o: button_handler.s
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f *.o toy.elf

@@ -1,0 +1,26 @@
+#include "states.h"
+#include "leds.h"
+#include "sounds.h"
+
+extern volatile int current_state;
+
+void switch_state(int state) {
+    switch (state) {
+        case 0:
+            leds_off();
+            sound_off();
+            break;
+        case 1:
+            set_led_blink(1000);
+            set_sound(1000);
+            led_toggle_red();
+            break;
+        case 2:
+            set_led_brightness(300);
+            set_sound(800);
+            led_on_red();
+            break;
+        default:
+            current_state = 0;
+    }
+}

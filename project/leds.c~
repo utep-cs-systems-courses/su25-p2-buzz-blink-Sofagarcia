@@ -1,0 +1,38 @@
+#include <msp430.h>
+#include "leds.h"
+
+void led_init() {
+    P1DIR |= BIT6 | BIT0; // Green (P1.6) + Red (P1.0)
+    P1SEL |= BIT6;        // Green LED uses PWM
+
+    TA0CCR0 = 1000;
+    TA0CCTL1 = OUTMOD_7;
+    TA0CCR1 = 500;
+    TA0CTL = TASSEL_2 + MC_1;
+}
+
+void set_led_blink(unsigned int rate) {
+    TA0CCR0 = rate;
+    TA0CCR1 = rate / 2;
+}
+
+void set_led_brightness(unsigned int level) {
+    TA0CCR1 = level;
+}
+
+void leds_off() {
+    TA0CCR1 = 0;
+    P1OUT &= ~BIT0; // turn off red LED
+}
+
+void led_toggle_red() {
+    P1OUT ^= BIT0;
+}
+
+void led_on_red() {
+    P1OUT |= BIT0;
+}
+
+void led_off_red() {
+    P1OUT &= ~BIT0;
+}

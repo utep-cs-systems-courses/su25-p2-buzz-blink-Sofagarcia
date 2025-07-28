@@ -1,0 +1,26 @@
+#include "msp430.h"
+#include "states.h"
+#include "buttons.h"
+#include "sounds.h"
+#include "leds.h"
+#include "timer.h"
+
+volatile int current_state = 0;
+
+int main() {
+    WDTCTL = WDTPW | WDTHOLD;   // Stop watchdog timer
+    led_init();
+    sound_init();
+    buttons_init();
+    configureClocks();
+    enableWDTInterrupts();
+
+    __enable_interrupt();       // Enable global interrupts
+
+    while (1) {
+      __low_power_mode_0();
+      // switch_state(current_state);
+    }
+
+    return 0;
+}
